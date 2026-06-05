@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ćwiczenia logopedyczne – Tracker</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#ffffff;--bg2:#f5f5f3;--bg3:#ececea;
+    --text:#1a1a18;--text2:#6b6b67;--text3:#9b9b97;
+    --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+    --green-bg:#E1F5EE;--green:#0F6E56;--green-border:#5DCAA5;
+    --red-bg:#FCEBEB;--red:#A32D2D;--red-border:#F09595;
+    --amber-bg:#FAEEDA;--amber:#854F0B;--amber-border:#EF9F27;
+    --blue-bg:#E6F1FB;--blue:#185FA5;--blue-border:#85B7EB;
+    --purple-bg:#EEEDFE;--purple:#3C3489;
+    --teal:#1D9E75;
+    --radius:8px;--radius-lg:12px;
+    --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#1c1c1a;--bg2:#262624;--bg3:#303030;
+      --text:#f0f0ec;--text2:#a8a8a4;--text3:#707070;
+      --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
+      --green-bg:#04342C;--green:#9FE1CB;--green-border:#0F6E56;
+      --red-bg:#501313;--red:#F7C1C1;--red-border:#A32D2D;
+      --amber-bg:#412402;--amber:#FAC775;--amber-border:#854F0B;
+      --blue-bg:#042C53;--blue:#B5D4F4;--blue-border:#185FA5;
+      --purple-bg:#26215C;--purple:#CECBF6;
+    }
+  }
+  body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:100vh;padding:0}
+  .container{max-width:780px;margin:0 auto;padding:1.5rem 1rem 3rem}
+  h1{font-size:20px;font-weight:500;margin-bottom:4px}
+  .subtitle{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+
+  .tabs{display:flex;gap:0;margin-bottom:1.5rem;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:4px}
+  .tab{flex:1;padding:9px 12px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--text2);border-radius:var(--radius);transition:all 0.15s;font-family:var(--font)}
+  .tab.active{background:var(--bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+  .tab:hover:not(.active){color:var(--text)}
+  .page{display:none}.page.active{display:block}
+
+  /* Exercise cards */
+  .ex-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem}
+  .ex-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:1rem}
+  .ex-num{width:36px;height:36px;border-radius:50%;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:500;font-size:15px;flex-shrink:0}
+  .ex-title{font-size:16px;font-weight:500;margin-bottom:4px;line-height:1.3}
+  .ex-why{font-size:13px;color:var(--text2);line-height:1.6}
+  .dose-badge{display:inline-block;background:var(--purple-bg);color:var(--purple);font-size:12px;padding:3px 10px;border-radius:20px;font-weight:500;margin-top:8px}
+  .section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin:1rem 0 8px}
+  .steps{list-style:none;counter-reset:s}
+  .steps li{counter-increment:s;display:flex;gap:10px;font-size:14px;line-height:1.6;margin-bottom:8px;color:var(--text2)}
+  .steps li::before{content:counter(s);width:22px;height:22px;border-radius:50%;background:var(--bg2);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:3px}
+  .tip{background:var(--bg2);border-radius:var(--radius);padding:10px 14px;margin-top:10px;font-size:13px;color:var(--text2);line-height:1.5;border-left:3px solid var(--teal)}
+  .yt-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:13px;color:var(--blue);text-decoration:none;border:0.5px solid var(--blue-border);border-radius:var(--radius);padding:6px 12px;background:var(--blue-bg)}
+  .yt-link:hover{opacity:0.85}
+
+  /* Tracker */
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+  .stat{background:var(--bg2);border-radius:var(--radius);padding:1rem;text-align:center}
+  .stat-label{font-size:11px;color:var(--text2);margin-bottom:4px}
+  .stat-num{font-size:26px;font-weight:500}
+  .stat-num.g{color:var(--green)}.stat-num.a{color:var(--amber)}.stat-num.r{color:var(--red)}
+
+  .prog-wrap{height:8px;background:var(--bg2);border-radius:4px;margin-bottom:6px;overflow:hidden}
+  .prog-bar{height:100%;border-radius:4px;background:var(--teal);transition:width 0.3s}
+  .prog-bar.low{background:#D85A30}
+  .prog-note{font-size:12px;color:var(--text3);margin-bottom:1.5rem}
+
+  .week-block{margin-bottom:1.25rem}
+  .week-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em}
+  .day-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:6px}
+  .day-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .day-name{font-size:13px;width:80px;flex-shrink:0;color:var(--text2)}
+  .day-name.today{color:var(--text);font-weight:500}
+  .btns{display:flex;gap:6px;flex:1;flex-wrap:wrap}
+  .btn-s{border:0.5px solid var(--border2);background:none;border-radius:var(--radius);padding:5px 10px;font-size:12px;cursor:pointer;font-family:var(--font);color:var(--text2);transition:all 0.1s;white-space:nowrap}
+  .btn-s:hover{background:var(--bg2)}
+  .btn-s.done{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+  .btn-s.partial{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}
+  .btn-s.skip{background:var(--red-bg);border-color:var(--red-border);color:var(--red)}
+  .comment{width:100%;margin-top:8px;border:0.5px solid var(--border);border-radius:var(--radius);padding:6px 10px;font-size:12px;font-family:var(--font);background:var(--bg2);color:var(--text);resize:none;height:32px}
+  .comment:focus{outline:none;border-color:var(--border2);height:54px;transition:height 0.15s}
+  .future{opacity:0.38;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Ćwiczenia logopedyczne</h1>
+  <p class="subtitle">Tracker 4-tygodniowy · cel: 75% (min. 21/28 dni)</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('ex')">📋 Ćwiczenia</button>
+    <button class="tab" onclick="show('tr')">📅 Tracker</button>
+  </div>
+
+  <!-- EXERCISES -->
+  <div id="page-ex" class="page active">
+
+    <div class="ex-card">
+      <div class="ex-header">
+        <div class="ex-num">1</div>
+        <div>
+          <div class="ex-title">Pozycja spoczynkowa języka (Przypominajka I)</div>
+          <div class="ex-why">Nieprawidłowa pozycja spoczynkowa języka (nacisk na zęby lub wargi zamiast na podniebienie) to jedna z głównych przyczyn recesji dziąseł. Język spoczywa na zębach przez wiele godzin dziennie, wywierając stały mechaniczny nacisk. Celem jest wyrobienie prawidłowej pozycji jako odruchu.</div>
+          <span class="dose-badge">20 powtórzeń dziennie</span>
+        </div>
+      </div>
+      <div class="section-label">Jak wykonać</div>
+      <ol class="steps">
+        <li>Rozluźnij usta i szczęki — zęby lekko rozchylone, wargi zamknięte bez napięcia.</li>
+        <li>Unieś czubek języka i połóż go na tzw. „spot" — mała guzkowata wypukłość na podniebieniu tuż za górną jedynką.</li>
+        <li>Reszta języka powinna płasko przylegać do całego podniebienia — jakby „przyklejona" od góry.</li>
+        <li>Zatrzymaj się na 3–5 sekund, poczuj tę pozycję. Rozluźnij i powtórz.</li>
+      </ol>
+      <div class="tip">💡 Ustaw alarm co 1–2 godziny jako przypomnienie, żeby sprawdzić, gdzie jest język. Po kilku tygodniach codziennej kontroli pozycja stanie się nawykiem odruchowym.</div>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=pozycja+spoczynkowa+j%C4%99zyka+logopeda+recesja+dzi%C4%85se%C5%82" target="_blank">▶ Szukaj na YouTube: „pozycja spoczynkowa języka logopeda"</a>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-header">
+        <div class="ex-num">2</div>
+        <div>
+          <div class="ex-title">Nauka prawidłowego przełykania</div>
+          <div class="ex-why">Przy nieprawidłowym przełykaniu język pcha w zęby lub wargi — nawet kilkaset razy dziennie (przełykamy ok. 2000 razy/dobę). Ten chroniczny nacisk powoduje recesję dziąseł i wady zgryzu. Ćwiczenie uczy przełykania z językiem na podniebieniu.</div>
+          <span class="dose-badge">Kilka razy dziennie — ćwicz świadomie</span>
+        </div>
+      </div>
+      <div class="section-label">Krok po kroku</div>
+      <ol class="steps">
+        <li>Weź mały łyk wody do ust — nie połykaj jeszcze.</li>
+        <li>Wklej język z wodą — unieś język i przyłóż do podniebienia (pozycja jak w ćw. 1). Woda powinna być „uwięziona" między językiem a podniebieniem.</li>
+        <li>Utrzymaj tę pozycję z szeroko otwartą buzią — sprawdź, czy język trzyma się na górze i nie wysuwa się do przodu. Trzymaj kilka sekund.</li>
+        <li>Zamknij zęby (nie wargi!) i przełknij, lekko się uśmiechając. Język NIE powinien zmieniać pozycji podczas przełykania.</li>
+      </ol>
+      <div class="tip">💡 Błąd do uniknięcia: napinanie warg lub wysuwanie języka między zęby podczas przełykania. Jeśli czujesz napięcie w wargach — zacznij od początku.</div>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=prawid%C5%82owe+prze%C5%82ykanie+logopeda+j%C4%99zyk+podniebienie" target="_blank">▶ Szukaj na YouTube: „prawidłowe przełykanie logopeda język"</a>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-header">
+        <div class="ex-num">3</div>
+        <div>
+          <div class="ex-title">Rozciąganie szyi + masaż kości gnykowej</div>
+          <div class="ex-why">Napięcie mięśni szyi i okolicy gnykowej (kość gnykowa łączy język z krtanią) zaburza prawidłowe połykanie i pozycję języka. Rozciąganie uwalnia te napięcia i poprawia funkcjonowanie całego aparatu mowy i połykania.</div>
+          <span class="dose-badge">10 przełknięć + 3 × 30 sek. + masaż</span>
+        </div>
+      </div>
+      <div class="section-label">Część A — przełykanie z uniesioną głową</div>
+      <ol class="steps">
+        <li>Unieś głowę do góry, naciągając mocno dekolt (szyja wyciągnięta ku górze).</li>
+        <li>W tej pozycji wykonaj 10 przełknięć śliny — pozycja jest trudna, to normalne.</li>
+        <li>Powtórz w 3 płaszczyznach: głowa prosto w górę, lekko w prawo-górę, lekko w lewo-górę — po 30 sekund każda.</li>
+      </ol>
+      <div class="section-label">Część B — masaż kości gnykowej</div>
+      <ol class="steps">
+        <li>Znajdź kość gnykową: mała ruchoma kość w gardle, ok. 2 cm nad jabłkiem Adama.</li>
+        <li>Połącz 3 palce (wskazujący, środkowy, serdeczny) i ułóż je poniżej kości gnykowej.</li>
+        <li>Powoli przesuń palce w górę od kości — 3 razy w prawo, 3 razy w lewo. Kciuk delikatnie podciąga skórę w górę.</li>
+        <li>„Spacer": palec wskazujący i środkowy idą po szyi, kciuk ciągnie masę skóry — 3 w jedną i 3 w drugą stronę.</li>
+        <li>Opcjonalnie: ściągnij wargi i przytrzymaj podczas masażu — wzmacnia efekt.</li>
+      </ol>
+      <div class="tip">💡 Masaż ma być delikatny — nie uciskaj mocno. Jeśli czujesz ból lub dyskomfort, zmniejsz nacisk. Kość gnykowa jest ruchoma — to naturalne.</div>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=masa%C5%BC+ko%C5%9B%C4%87+gnykowa+logopedia" target="_blank">▶ Szukaj na YouTube: „masaż kość gnykowa logopedia"</a>
+    </div>
+
+    <div class="ex-card">
+      <div class="ex-header">
+        <div class="ex-num">4</div>
+        <div>
+          <div class="ex-title">Logatomy z głoskami s, z, c, dz</div>
+          <div class="ex-why">Logatomy (bezsensowne sylaby) służą do ćwiczenia precyzji ruchów języka. Przy głoskach s/z/c/dz język powinien leżeć płasko za dolnymi zębami — czubek przy dolnych siekaczach. Ćwiczenie koryguje sygmatyzm międzyzębowy, czyli nawyk wysuwania języka między zęby, który bezpośrednio niszczy dziąsła.</div>
+          <span class="dose-badge">5–10 minut dziennie</span>
+        </div>
+      </div>
+      <div class="section-label">Jak wykonać</div>
+      <ol class="steps">
+        <li>Prawidłowa pozycja wyjściowa: język płasko za dolnymi zębami (czubek dotyka wewnętrznej strony dolnych siekaczy), wargi lekko rozchylone jak do uśmiechu, zęby zbliżone (nie zaciśnięte).</li>
+        <li>Mów powoli i wyraźnie, kontrolując każdy dźwięk: <strong>sa-se-si-so-su</strong> / <strong>za-ze-zi-zo-zu</strong></li>
+        <li>Sylaby z połączeniami: <strong>sca-sce-sci</strong> / <strong>dza-dze-dzi</strong> / <strong>cza-cze-czi</strong></li>
+        <li>Trudniejsze: <strong>psa-tsa-ksa</strong> / <strong>bza-dza-gza</strong></li>
+        <li>Ćwicz przed lustrem — obserwuj, czy język nie wysuwa się między zęby podczas s/z/c/dz.</li>
+      </ol>
+      <div class="tip">💡 Kluczowe: język zostaje za dolnymi zębami przez cały czas — NIE wychodzi między zęby. Sprawdzaj w lustrze. Możesz też zawinąć nitkę dentystyczną wokół dolnych jedynek i dotykać jej czubkiem języka jako punktu odniesienia.</div>
+      <a class="yt-link" href="https://www.youtube.com/results?search_query=logatomy+logopeda+%C4%87wiczenia+g%C5%82oska+s+z+c+dz" target="_blank">▶ Szukaj na YouTube: „logatomy logopeda ćwiczenia głoska s z c dz"</a>
+    </div>
+
+  </div>
+
+  <!-- TRACKER -->
+  <div id="page-tr" class="page">
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-label">Dni z ćwiczeniami</div>
+        <div class="stat-num g" id="s-done">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Skuteczność</div>
+        <div class="stat-num" id="s-pct">0%</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Do celu (21 dni)</div>
+        <div class="stat-num" id="s-left">21</div>
+      </div>
+    </div>
+    <div class="prog-wrap"><div class="prog-bar" id="prog" style="width:0%"></div></div>
+    <div class="prog-note" id="prog-note"></div>
+    <div id="weeks"></div>
+  </div>
+</div>
+
+<script>
+const DAYS=['Pn','Wt','Śr','Cz','Pt','Sb','Nd'];
+const MONTHS=['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
+const START=new Date(2026,5,5); // 5 czerwca 2026 — zmień jeśli potrzeba
+const GOAL=21,TOTAL=28;
+
+function show(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.tab')[p==='ex'?0:1].classList.add('active');
+  if(p==='tr')render();
+}
+
+function key(i){return'log_day_'+i}
+function load(i){try{const v=localStorage.getItem(key(i));return v?JSON.parse(v):{s:null,c:''}}catch{return{s:null,c:''}}}
+function save(i,d){try{localStorage.setItem(key(i),JSON.stringify(d))}catch{}}
+
+function dayDate(i){const d=new Date(START);d.setDate(d.getDate()+i);return d}
+function isFuture(i){const d=dayDate(i);d.setHours(0,0,0,0);const t=new Date();t.setHours(0,0,0,0);return d>t}
+function isToday(i){return dayDate(i).toDateString()===new Date().toDateString()}
+
+function render(){
+  const wrap=document.getElementById('weeks');
+  wrap.innerHTML='';
+  let done=0,passed=0;
+  for(let w=0;w<4;w++){
+    const wb=document.createElement('div');wb.className='week-block';
+    const wl=document.createElement('div');wl.className='week-label';
+    wl.textContent='Tydzień '+(w+1);wb.appendChild(wl);
+    for(let d=0;d<7;d++){
+      const i=w*7+d,dt=dayDate(i),data=load(i),fut=isFuture(i),tod=isToday(i);
+      if(!fut)passed++;
+      if(!fut&&data.s==='done')done++;
+      const card=document.createElement('div');
+      card.className='day-card'+(fut?' future':'');
+      const top=document.createElement('div');top.className='day-top';
+      const dn=document.createElement('div');
+      dn.className='day-name'+(tod?' today':'');
+      dn.textContent=DAYS[d]+' '+dt.getDate()+' '+MONTHS[dt.getMonth()]+(tod?' ◀':'');
+      top.appendChild(dn);
+      const btns=document.createElement('div');btns.className='btns';
+      [['done','✓ Zrobione'],['partial','~ Częściowo'],['skip','✗ Pominięto']].forEach(([st,label])=>{
+        const b=document.createElement('button');
+        b.className='btn-s'+(data.s===st?' '+st:'');
+        b.textContent=label;
+        b.onclick=()=>{const cur=load(i);save(i,{...cur,s:cur.s===st?null:st});render()};
+        btns.appendChild(b);
+      });
+      top.appendChild(btns);card.appendChild(top);
+      const inp=document.createElement('input');
+      inp.className='comment';inp.type='text';inp.placeholder='komentarz (opcjonalnie)...';
+      inp.value=data.c||'';
+      inp.onchange=()=>{const cur=load(i);save(i,{...cur,c:inp.value})};
+      card.appendChild(inp);wb.appendChild(card);
+    }
+    wrap.appendChild(wb);
+  }
+  const pct=passed>0?Math.round(done/passed*100):0;
+  document.getElementById('s-done').textContent=done;
+  const pe=document.getElementById('s-pct');
+  pe.textContent=pct+'%';
+  pe.className='stat-num'+(pct>=75?' g':pct>=50?' a':' r');
+  const le=document.getElementById('s-left');
+  const left=Math.max(0,GOAL-done);
+  le.textContent=left===0?'✓':left;
+  le.className='stat-num'+(left===0?' g':' a');
+  const bar=document.getElementById('prog');
+  bar.style.width=Math.min(100,Math.round(done/GOAL*100))+'%';
+  bar.className='prog-bar'+(done/GOAL>=0.5?'':' low');
+  const dLeft=Math.max(0,TOTAL-passed);
+  document.getElementById('prog-note').textContent=
+    done>=GOAL?'🎉 Cel osiągnięty!':
+    'Do celu brakuje jeszcze '+left+' dni (pozostało '+dLeft+' dni programu)';
+}
+</script>
+</body>
+</html>
