@@ -225,7 +225,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
 <script>
 // ── Supabase config ──────────────────────────────────────────────
 const SUPABASE_URL = 'https://awiefzjvdufmfgxvhuzb.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_FXwff8ewzmtgcUGDnI6NGA_xNeCkBnl';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3aWVmemp2ZHVmbWZneHZodXpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODY1MjEsImV4cCI6MjA5NjI2MjUyMX0.yKQh3jt3YYIE8fpW3lTHalAgG02a1SNAsT-oHufkPFQ';
 const TABLE = 'tracker';
 
 // ── App config ───────────────────────────────────────────────────
@@ -241,15 +241,16 @@ let saveTimers = {};
 
 // ── Supabase helpers ─────────────────────────────────────────────
 async function sbFetch(path, opts = {}) {
+  const { prefer, headers: extraHeaders, ...fetchOpts } = opts;
   const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
     headers: {
       'apikey': SUPABASE_KEY,
       'Authorization': 'Bearer ' + SUPABASE_KEY,
       'Content-Type': 'application/json',
-      'Prefer': opts.prefer || 'return=representation',
-      ...opts.headers
+      'Prefer': prefer || 'return=representation',
+      ...(extraHeaders || {})
     },
-    ...opts
+    ...fetchOpts
   });
   if (!res.ok) throw new Error(await res.text());
   const text = await res.text();
@@ -279,7 +280,6 @@ async function saveDay(idx) {
     await sbFetch(TABLE, {
       method: 'POST',
       prefer: 'resolution=merge-duplicates,return=minimal',
-      headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
       body: JSON.stringify({
         day_index: idx,
         status: data.status,
